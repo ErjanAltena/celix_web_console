@@ -1,0 +1,68 @@
+<html>
+        <head>
+                <title>Celix Web Console</title>
+        </head>
+        <style>
+                #bundle_table {
+                        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                        width: 100%;
+                        border-collapse: collapse;
+                }
+
+                #bundle_table td, #bundle_table th {
+                        font-size: 1em;
+                        border: 1px solid #3366FF;
+                        padding: 3px 7px 2px 7px;
+                }
+
+                #bundle_table th {
+                        font-size: 1.1em;
+                        text-align: left;
+                        padding-top: 5px;
+                        padding-bottom: 4px;
+                        background-color: #3366FF;
+
+                        color: #ffffff;
+                }
+
+                #bundle_table tr.alt td {
+                        color: #000000;
+                        background-color: #3366FF;
+                }
+        </style>
+        <script type="text/javascript">
+        function show_bundles(bi) {
+                var bt = document.getElementById("bundle_table");
+                bt.innerHTML = "<tr><th>Identification</th><th>State</th><th>Name</th><th>Location</th></tr>";
+                for (var i = 0; i < bi.length; i++) {
+                        bt.innerHTML += "<tr><td>" + bi[i].id + "</td><td>" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
+                }
+                        
+        }
+
+        //
+        // Main
+        //
+        var xmlhttp;
+        
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        var bundle_info = JSON.parse(xmlhttp.responseText);
+                        show_bundles(bundle_info.Bundles);
+                }
+        }                
+        
+        function send_it() {
+                xmlhttp.open("GET","/cgi" , true);  
+                xmlhttp.send();
+                setTimeout(send_it, 1000);
+        }      
+        setTimeout(send_it, 1000);
+        </script>
+        <body>
+                <a href="/index.html"><img id="headerimage" src="/images/celix.png" alt="Apache Celix" height="130px"></a>
+                <h1>Web Console</h1>
+                <table id="bundle_table"/>
+        </body>
+</html>
