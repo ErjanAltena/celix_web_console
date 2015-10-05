@@ -14,30 +14,28 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-celix_subproject(WEB_CONSOLE "Option to enable building the Web Console  Interface bundles" OFF DEPS LAUNCHER SHELL)
-if (WEB_CONSOLE)
+celix_subproject(WEB_CONSOLE_BUNDLE_SERVICE  "Option to enable building the Web Console Bundle Service" OFF DEPS LAUNCHER SHELL WEB_CONSOLE)
+if (WEB_CONSOLE_BUNDLE_SERVICE)
 
         SET_HEADER(BUNDLE_VERSION "1.0.0")
-	SET_HEADER(BUNDLE_SYMBOLICNAME "apache_celix_web_console")
-	SET_HEADERS("Bundle-Name: Apache Celix Web Console") 
+	SET_HEADER(BUNDLE_SYMBOLICNAME "apache_celix_web_console_bundle_service")
+	SET_HEADERS("Bundle-Name: Apache Celix Web Console Bundle Service`") 
 
-        bundle(web_console
+        bundle(web_console_bundle_service
     	        SOURCES 
-    		        private/src/web_console.c
-    		        private/src/civetweb.c
-    		        private/src/web_service_tracker.c
+                        private/src/web_console_bundle_activator.c
+                        private/src/web_console_bundle_service.c
                         ../web_console_util/private/src/web_resources.c
-                FILES 
-                        www/index.html
-                        www/celix.png
+                FILES	
+                        www/bundles.html
 	)
 	
-	install_bundle(web_console)
+	install_bundle(web_console_bundle_service)
 	
         include_directories("private/include")
         include_directories("../web_console_service/public/include")
         include_directories("../web_console_util/private/include")
         include_directories("${PROJECT_SOURCE_DIR}/utils/public/include")
         include_directories("${PROJECT_SOURCE_DIR}/shell/public/include")
-        target_link_libraries(web_console)
-endif (WEB_CONSOLE)
+        target_link_libraries(web_console_bundle_service)
+endif (WEB_CONSOLE_BUNDLE_SERVICE)

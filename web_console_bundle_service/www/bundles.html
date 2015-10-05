@@ -1,6 +1,6 @@
 <html>
         <head>
-                <title>Celix Web Console</title>
+                <title>Celix Web Console -Bundle view</title>
         </head>
         <style>
                 #bundle_table {
@@ -29,13 +29,7 @@
                         color: #000000;
                         background-color: #3366FF;
                 }
-                #content_frame {
-                        width: 100%;
-                        height: 100%;
-                        border: 0px;
-                }
         </style>
-<!--
         <script type="text/javascript">
         function show_bundles(bi) {
                 var bt = document.getElementById("bundle_table");
@@ -60,16 +54,13 @@
         }                
         
         function send_it() {
-                xmlhttp.open("GET","/cgi" , true);  
+                xmlhttp.open("GET","/bundle" , true);  
                 xmlhttp.send();
                 setTimeout(send_it, 1000);
         }      
         setTimeout(send_it, 1000);
         </script>
--->
         <body>
-                <a href="/index.html"><img id="headerimage" src="/celix.png" alt="Apache Celix" height="130px"></a>
-                <h1>Web Console</h1>
-                <iframe id="content_frame" src="/bundles.html"/>
+                <table id="bundle_table"/>
         </body>
 </html>

@@ -19,6 +19,7 @@ is_enabled(WEB_CONSOLE)
 if (WEB_CONSOLE)
 	deploy("web_console" BUNDLES 
 		web_console
+                web_console_bundle_service
                 ${CELIX_BUNDLES_DIR}/shell.zip
                 ${CELIX_BUNDLES_DIR}/shell_tui.zip
 	)
