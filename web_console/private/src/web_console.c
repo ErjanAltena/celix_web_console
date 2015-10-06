@@ -117,8 +117,8 @@ celix_status_t bundleActivator_stop(void * userData, bundle_context_pt context) 
         activator->running = false;
         activator->context = NULL;
 
-        celixThread_join(activator->runnable, NULL);
-        sleep(2);
+        mg_set_request_handler(activator->webContext, "/plugins", NULL, activator);
+        mg_stop(activator->webContext);
         serviceTracker_close(activator->tracker);
         serviceTracker_destroy(activator->tracker);
         removeWebResources(context, resources, WEB_ROOT);

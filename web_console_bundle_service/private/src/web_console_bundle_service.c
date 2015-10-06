@@ -36,7 +36,7 @@ web_console_pt webConsoleBundleCreate(bundle_context_pt context)
 
 char *webConsoleBundleServiceName(web_console_pt wc)
 {
-        return "web_console_bundle_service";
+        return "Bundle viewer";
 } 
 
 char *webConsoleBundleServiceWebEntry(web_console_pt wc) 
@@ -82,6 +82,7 @@ char *webConsoleBundleServiceGetJsonData(web_console_pt wc)
         int cnt = 0;
         int i;
         bundle_pt bundlesA[size];
+         
         for (i = 0; i < size; i++) {
                 bundlesA[i] = arrayList_get(bundles, i);
         }

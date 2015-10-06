@@ -1,0 +1,83 @@
+<html>
+        <head>
+                <title>Celix Web Console - Services view</title>
+        </head>
+        <style>
+                #service_table {
+                        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                        width: 100%;
+                        border-collapse: collapse;
+                }
+
+                #service_table td, #service_table th {
+                        font-size: 1em;
+                        border: 1px solid #3366FF;
+                        padding: 3px 7px 2px 7px;
+                }
+
+                #service_table th {
+                        font-size: 1.1em;
+                        text-align: left;
+                        padding-top: 5px;
+                        padding-bottom: 4px;
+                        background-color: #3366FF;
+
+                        color: #ffffff;
+                }
+
+                #service_table tr.alt td {
+                        color: #000000;
+                        background-color: #3366FF;
+                }
+                
+                #inner_table td, #inner_table th {
+                        font-size: 1em;
+                        border: 0px solid #3366FF;
+                }
+
+        </style>
+        <script type="text/javascript">
+        function show_services(si) {
+                var bt = document.getElementById("service_table");
+                var cntnt = "";
+                cntnt = "<tr><th>Service Name</th><th>Properties</th></tr>";
+                for (var i = 0; i < si.length; i++) {
+                        cntnt += "<tr>";
+                        cntnt += "<td>" + si[i].servicename + "</td>";
+                        cntnt += "<td>";
+                        cntnt += "<table id=\"inner_table\">";
+                        for (var j = 0; j < si[i].properties.length; j++) {
+                                cntnt += "<tr><td>" + si[i].properties[j].key + "</td><td>" + si[i].properties[j].value + "</td></tr>" ;
+                        }
+                        cntnt += "</table>";
+                        cntnt += "</td>";
+                        
+                        cntnt += "</tr>";
+                }
+                bt.innerHTML=cntnt;
+        }
+
+        //
+        // Main
+        //
+        var xmlhttp;
+        
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        var service_info = JSON.parse(xmlhttp.responseText);
+                        show_services(service_info.Services);
+                }
+        }                
+        
+        function send_it() {
+                xmlhttp.open("GET","/services" , true);  
+                xmlhttp.send();
+                setTimeout(send_it, 1000);
+        }      
+        setTimeout(send_it, 1000);
+        </script>
+        <body>
+                <table id="service_table"/>
+        </body>
+</html>

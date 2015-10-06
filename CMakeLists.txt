@@ -13,5 +13,6 @@ find_package(PkgConfig REQUIRED)
 
 add_subdirectory(web_console)
 add_subdirectory(web_console_bundle_service)
+add_subdirectory(web_console_services_service)
 
 deploy_targets()

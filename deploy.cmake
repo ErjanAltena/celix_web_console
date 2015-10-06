@@ -20,6 +20,7 @@ if (WEB_CONSOLE)
 	deploy("web_console" BUNDLES 
 		web_console
                 web_console_bundle_service
+                web_console_services_service
                 ${CELIX_BUNDLES_DIR}/shell.zip
                 ${CELIX_BUNDLES_DIR}/shell_tui.zip
 	)
