@@ -53,7 +53,6 @@ char* resources[] = {"index.html",
 
 typedef struct shellWebActivator * shell_web_activator_pt;
 
-static void *shellWeb_runnable(void *data);
 static int event_handler(struct mg_connection *conn, void * data); 
 
 celix_status_t bundleActivator_create(bundle_context_pt context, void **userData) {
@@ -80,13 +79,11 @@ celix_status_t bundleActivator_destroy(void * userData, bundle_context_pt contex
 }
 
 celix_status_t bundleActivator_start(void * userData, bundle_context_pt context) {
-        printf("activator-start\n");
         celix_status_t status = CELIX_SUCCESS;
         service_tracker_customizer_pt cust = NULL;
         service_tracker_pt tracker = NULL;
 
         shell_web_activator_pt act = (shell_web_activator_pt) userData;
-        printf("Activator web_console-start: %p\n");
         mkdir(WEB_ROOT, 0777); 
         if (copyWebResources(context, resources, WEB_ROOT) != CELIX_SUCCESS) {
                 printf("Error copyWebResources\n");
@@ -99,11 +96,10 @@ celix_status_t bundleActivator_start(void * userData, bundle_context_pt context)
         memset(&callbacks, 0, sizeof(callbacks));
         struct mg_context *ctx;
         ctx = mg_start(&callbacks, NULL, options);
-        printf("Set webcontext\n");
         mg_set_request_handler(ctx, "/", event_handler, act);
+        mg_set_request_handler(ctx, "/plugins", plugin_event_handler, act);
         act->webContext = ctx;
         arrayList_create(&(act->trackedServices));
-        printf("ArrayList = %p\n", act->trackedServices);
         serviceTrackerCustomizer_create(act, NULL, wst_service_added, NULL, wst_service_removed, &cust);
         serviceTracker_create(context, WEB_CONSOLE_SERVICE, cust, &tracker);
         act->tracker = tracker;
@@ -111,15 +107,10 @@ celix_status_t bundleActivator_start(void * userData, bundle_context_pt context)
         act->context = context;
         act->running = true;
 
-        if (status == CELIX_SUCCESS) {
-                celixThread_create(&act->runnable, NULL, shellWeb_runnable, act);
-        }
-
         return status;
 }
 
 celix_status_t bundleActivator_stop(void * userData, bundle_context_pt context) {
-        printf("activator-stop\n");
         celix_status_t status = CELIX_SUCCESS;
         shell_web_activator_pt activator = (shell_web_activator_pt) userData;
 
@@ -152,84 +143,40 @@ char * psCommand_stateString(bundle_state_e state) {
         }
 }
 
-char * getJsonProcessInfo(shell_web_activator_pt act) 
-{
-        array_list_pt bundles = NULL;
-        celix_status_t status = bundleContext_getBundles(act->context, &bundles);
-        unsigned int size = arrayList_size(bundles);
-        static char line[1024]; 
-        static char *archiveRoot; 
-        int cnt = 0;
-        int i;
-        bundle_pt bundlesA[size];
-        for (i = 0; i < size; i++) {
-                bundlesA[i] = arrayList_get(bundles, i);
-        }
-        if (status == CELIX_SUCCESS) {
-                int j;
-                int first = 1;
-                for(i=0; i < size - 1; i++) {
-                        for(j=i+1; j < size; j++) {
-                                bundle_pt first = bundlesA[i];
-                                bundle_pt second = bundlesA[j];
-
-                                bundle_archive_pt farchive = NULL, sarchive = NULL;
-                                long fid, sid;
-
-                                bundle_getArchive(first, &farchive);
-                                bundleArchive_getId(farchive, &fid);
-                                bundle_getArchive(second, &sarchive);
-                                bundleArchive_getId(sarchive, &sid);
-
-                                if(fid > sid)
-                                {
-                                         // these three lines swap the elements bundles[i] and bundles[j].
-                                         bundle_pt temp = bundlesA[i];
-                                         bundlesA[i] = bundlesA[j];
-                                         bundlesA[j] = temp;
-                                }
-                        }
-                }
-                cnt += sprintf(&(line[cnt]), "{\"Bundles\":[\n");
-                for (i = 0; i < size; i++) {
-                        bundle_pt bundle = bundlesA[i];
-                        bundle_archive_pt archive = NULL;
-                        long id;
-                        bundle_state_e state;
-                        char * stateString = NULL;
-                        module_pt module = NULL;
-                        char * name = NULL;
-                        char * loc = NULL;
-
-                        bundle_getArchive(bundle, &archive);
-                        bundleArchive_getId(archive, &id);
-                        bundle_getState(bundle, &state);
-                        stateString = psCommand_stateString(state);
-                        bundle_getCurrentModule(bundle, &module);
-                        module_getSymbolicName(module, &name);
-                        bundleArchive_getLocation(archive, &loc);
-                        bundleArchive_getArchiveRoot(archive, &archiveRoot);
-                        if(first) {
-                                first = 0;
-                        } else {
-                                cnt += sprintf(&(line[cnt]), ",\n");
-                        }
-                        cnt += sprintf(&(line[cnt]), "{\"id\":\"%d\", \"state\":\"%s\", \"name\":\"%s\", \"loc\":\"%s\", \"archiveroot\":\"%s\" }", (int)id, stateString, name, loc, archiveRoot);
-                }
-                cnt += sprintf(&(line[cnt]), "\n]}");
-               
-                arrayList_destroy(bundles);
-                return line;
-
-        }
-        return "<h1>ERROR</h1>";
-}
-
-
 static int event_handler(struct mg_connection *conn, void * data) 
 {
         // return 0 means that the contents of the webroot will be returned
         return 0;
+}
+
+int plugin_event_handler(struct mg_connection *conn, void *data)
+{
+        char jsonbuffer[4096];
+        int offset = 0;
+        int i = 0;
+        shell_web_activator_pt  act = (shell_web_activator_pt) data;
+        if(act->running) {
+                int size = arrayList_size(act->trackedServices);
+                offset += sprintf(&(jsonbuffer[offset]), "{\"plugins\":[");
+                for(i = 0; i < size; i++) {
+                        web_console_service_pt webService = (web_console_service_pt) arrayList_get(act->trackedServices, i);
+                        char * title = webService->getServiceName(webService->webConsole);
+                        char * page  = webService->getMainWebPage(webService->webConsole);
+                        offset += sprintf(&(jsonbuffer[offset]), "{\"title\":\"%s\", \"mainpage\":\"%s\"}", title, page);
+                        if(i != (size - 1)) {
+                                offset += sprintf(&(jsonbuffer[offset]), ",");
+                        }
+                }
+                offset += sprintf(&(jsonbuffer[offset]), "]}");
+                mg_printf(conn,
+                          "HTTP/1.1 200 OK\r\n"
+                          "Content-Type: text/plain\r\n"
+                          "Content-Length: %d\r\n"        // Always set Content-Length
+                          "\r\n"
+                          "%s",
+                          offset, jsonbuffer);
+        }
+        return 1;
 }
 
 int cgi_event_handler(struct mg_connection *conn, void * data) 
@@ -238,17 +185,14 @@ int cgi_event_handler(struct mg_connection *conn, void * data)
     int i;
     int result = 0;
     shell_web_activator_pt  act = (shell_web_activator_pt) data;
-    printf("cgi_event_handler: activator %p\n", act);
     if(act->running) { 
         // find the service which is requested
         int size = arrayList_size(act->trackedServices);
-        printf("Tracker has %d services\n", size);
         for(i = 0; i < size; i++) {
                 web_console_service_pt webService = (web_console_service_pt) arrayList_get(act->trackedServices, i);
                 char * entry = webService->getWebEntry(webService->webConsole);
 
                 const struct mg_request_info *reqInfo = mg_get_request_info(conn);
-                printf("cgi-handler: entry=%s, uri=%s\n", entry, reqInfo->uri);
                 if (!strcmp(entry, reqInfo->uri )) {
                         // Prepare the message we're going to send
                         content = webService->getJsonData(webService->webConsole);
@@ -268,20 +212,6 @@ int cgi_event_handler(struct mg_connection *conn, void * data)
     }
  
     return result;
-}
-
-static void* shellWeb_runnable(void *data) {
-        shell_web_activator_pt act = (shell_web_activator_pt) data;
-        //mg_set_request_handler(ctx, "/cgi", cgi_event_handler, data);
-        //mg_set_request_handler(ctx, "/", event_handler, data);
-
-        while(act->running) {
-                sleep(1);
-        }
-        //mg_set_request_handler(ctx, "/cgi", NULL, data);
-        //mg_set_request_handler(ctx, "/", NULL, data);
-
-        return NULL;
 }
 
 

@@ -12,7 +12,6 @@ struct web_console_activator {
 celix_status_t bundleActivator_create(bundle_context_pt context, void **userData)
 {
         celix_status_t result = CELIX_SUCCESS;
-        printf("webconsole_bundleService creating...\n");
         struct web_console_activator *wca = calloc(sizeof(struct web_console_activator),1);
 
         if(wca == NULL) {
@@ -29,7 +28,6 @@ celix_status_t bundleActivator_create(bundle_context_pt context, void **userData
 celix_status_t bundleActivator_start(void * userData, bundle_context_pt context)
 {
         celix_status_t result = CELIX_SUCCESS;
-        printf("webconsole_bundleService starting...\n");
         struct web_console_activator *wca = (struct web_console_activator*) userData;
 
         wca->webConsole = calloc(sizeof(struct web_console_service),1);
@@ -40,6 +38,7 @@ celix_status_t bundleActivator_start(void * userData, bundle_context_pt context)
                 wca->webConsole->copyRecourcesToWebDirectory = webConsoleBundleServiceCopyResources;
                 wca->webConsole->removeRecourcesFromWebDirectory = webConsoleBundleServiceRemoveResources;
                 wca->webConsole->getJsonData = webConsoleBundleServiceGetJsonData;
+                wca->webConsole->getMainWebPage = webConsoleBundleServiceGetMainWebPage;
                 bundleContext_registerService(context, WEB_CONSOLE_SERVICE, wca->webConsole, NULL, &wca->reg);
         } else {
                 wca->webConsole = NULL;
@@ -51,7 +50,6 @@ celix_status_t bundleActivator_start(void * userData, bundle_context_pt context)
 celix_status_t bundleActivator_stop(void * userData, bundle_context_pt context) 
 {
         celix_status_t result = CELIX_SUCCESS;
-        printf("webconsole_bundleService stopping...\n");
         struct web_console_activator *wca = (struct web_console_activator*) userData;
 
 	serviceRegistration_unregister(wca->reg);
@@ -66,7 +64,6 @@ celix_status_t bundleActivator_stop(void * userData, bundle_context_pt context)
 
 celix_status_t bundleActivator_destroy(void * userData, bundle_context_pt context) 
 {
-        printf("webconsole_bundleService destroying...\n");
         free(userData);       
         return CELIX_SUCCESS;
 }

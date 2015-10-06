@@ -145,3 +145,8 @@ char *webConsoleBundleServiceGetJsonData(web_console_pt wc)
         return "<h1>ERROR</h1>";
 
 }
+
+char * webConsoleBundleServiceGetMainWebPage(web_console_pt wc) 
+{
+        return "bundles.html";
+}

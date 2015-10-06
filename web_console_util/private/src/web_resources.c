@@ -12,7 +12,6 @@ static int copyFile(char* src, char*dst);
 
 celix_status_t copyWebResources(bundle_context_pt context, char* resources[], char* webRoot)
 {
-        printf("### copyWebResources ###\n");
         celix_status_t status;
         bundle_archive_pt archive = NULL;
         bundle_pt bundle = NULL;
@@ -43,7 +42,6 @@ celix_status_t copyWebResources(bundle_context_pt context, char* resources[], ch
                 char dest_loc[BUF_SIZE];
                 snprintf(source_loc, BUF_SIZE, "%s/%s", revLoc, resources[i]);  
                 snprintf(dest_loc, BUF_SIZE, "%s/%s", webRoot, resources[i]);
-                printf("## Copy %s --> %s\n",source_loc, dest_loc);
                 if(copyFile(source_loc, dest_loc)) {
                         return CELIX_FILE_IO_EXCEPTION; 
                 }
@@ -56,12 +54,10 @@ celix_status_t copyWebResources(bundle_context_pt context, char* resources[], ch
 
 celix_status_t removeWebResources(bundle_context_pt context, char* resources[], char *webRoot)
 {
-        printf("### removeWebResources ###\n");
         int i = 0;
         char buffer[BUF_SIZE];
         while(resources[i] != NULL) {
                 snprintf(buffer, BUF_SIZE, "%s/%s", webRoot, resources[i]);
-                printf("## Remove %s\n",buffer);
                 unlink(buffer);       
                 i++;
         }

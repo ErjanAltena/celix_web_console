@@ -11,3 +11,4 @@ struct shellWebActivator {
 
 
 int cgi_event_handler(struct mg_connection *conn, void * data);
+int plugin_event_handler(struct mg_connection *conn, void*data);
