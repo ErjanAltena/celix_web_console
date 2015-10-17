@@ -33,11 +33,14 @@
         <script type="text/javascript">
         function show_bundles(bi) {
                 var bt = document.getElementById("bundle_table");
-                bt.innerHTML = "<tr><th>Identification</th><th>State</th><th>Name</th><th>Location</th></tr>";
+                var cont = "<tr><th>Identification</th><th>State</th><th>Name</th><th>Location</th></tr>";
                 for (var i = 0; i < bi.length; i++) {
-                        bt.innerHTML += "<tr><td>" + bi[i].id + "</td><td>" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
+                        //content += "<tr><td>" + bi[i].id + "</td><td id=\"" + service + i + "\">" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
+                        cont += "<tr><td>" + bi[i].id + "</td><td>" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
+                        //somehow connect a function to enable/disable the bundle
+                        //document.getElementById(service + id).addEventListener('onmouseup', function
                 }
-                        
+                bt.innerHTML  = cont;       
         }
 
         //

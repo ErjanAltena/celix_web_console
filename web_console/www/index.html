@@ -35,13 +35,25 @@
                         border: 0px;                }
         </style>
         <script>
+        function usePlugin(page) {
+                var inhoud = document.getElementById("inhoud");
+                //content.innerHTML += "<h2>" + plugins[i].title +"</h2>";
+                inhoud.innerHTML = "<h2>" + page + "</h2><iframe id=\"content\" src=" + page +">";
+        }
         function add_plugins (plugins) {
-                var content = document.getElementById("content");
-                content.innerHTML = "";
-                for (var i = 0; i < plugins.length; i++) {
-                        content.innerHTML += "<h2>" + plugins[i].title +"</h2>";
-                        content.innerHTML += "<iframe id=\"content\" src=\"" + plugins[i].mainpage +"\"/>";
+                var menu = document.getElementById("menu");
+                menu.innerHTML = "";
+                for (var i = 0; i < plugins.length; i++) {                   
+                        menu.innerHTML += "<button onClick=\"usePlugin('" + plugins[i].mainpage + "')\">" + plugins[i].title + "</button>";
                 }
+                //if (plugins.length > 0 ) {
+                //        usePlugin(plugins[0].mainpage);
+                //}
+                usePlugin("bundles.html");
+                //for (var i = 0; i < plugins.length; i++) {
+                //        content.innerHTML += "<h2>" + plugins[i].title +"</h2>";
+                //        content.innerHTML += "<iframe id=\"content\" src=\"" + plugins[i].mainpage +"\"/>";
+                //}
         }
 
         function send_it() {
@@ -64,7 +76,11 @@
         <body>
                 <a href="/index.html"><img id="headerimage" src="/celix.png" alt="Apache Celix" height="130px"></a>
                 <h1>Web Console</h1>
-                <div id="content"/>
+                <div id="menu" name="menu">
+                </div>
+                <h1>Content</h1>
+                <div id="inhoud" name="inhoud">
+                </div>
                 <!--
                 <iframe id="content_frame" src="/bundles.html"/>
                 -->

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(web_console C)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/opt/local/share/celix/cmake/modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/opt/celix/share/celix/cmake/modules")
 set(CMAKE_C_FLAGS " -g -D_GNU_SOURCE -std=gnu99 -Wall ${CMAKE_C_FLAGS}")
 
 find_package(CELIX REQUIRED)
