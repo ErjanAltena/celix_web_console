@@ -3,57 +3,25 @@
                 <title>Celix Web Console</title>
         </head>
         <style>
-                #bundle_table {
-                        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-                        width: 100%;
-                        border-collapse: collapse;
-                }
-
-                #bundle_table td, #bundle_table th {
-                        font-size: 1em;
-                        border: 1px solid #3366FF;
-                        padding: 3px 7px 2px 7px;
-                }
-
-                #bundle_table th {
-                        font-size: 1.1em;
-                        text-align: left;
-                        padding-top: 5px;
-                        padding-bottom: 4px;
-                        background-color: #3366FF;
-
-                        color: #ffffff;
-                }
-
-                #bundle_table tr.alt td {
-                        color: #000000;
-                        background-color: #3366FF;
-                }
-                #content {
+               #content {
                         width: 100%;
                         height: 100%;
                         border: 0px;                }
         </style>
         <script>
-        function usePlugin(page) {
-                var inhoud = document.getElementById("inhoud");
-                //content.innerHTML += "<h2>" + plugins[i].title +"</h2>";
-                inhoud.innerHTML = "<h2>" + page + "</h2><iframe id=\"content\" src=" + page +">";
+        function usePlugin(title, page) {
+                var contents = document.getElementById("contents");
+                contents.innerHTML = "<h2>" + title + "</h2><iframe id=\"content\" src=" + page +">";
         }
         function add_plugins (plugins) {
                 var menu = document.getElementById("menu");
                 menu.innerHTML = "";
                 for (var i = 0; i < plugins.length; i++) {                   
-                        menu.innerHTML += "<button onClick=\"usePlugin('" + plugins[i].mainpage + "')\">" + plugins[i].title + "</button>";
+                        menu.innerHTML += "<button onClick=\"usePlugin('" + plugins[i].title + "','" + plugins[i].mainpage + "')\">" + plugins[i].title + "</button>";
                 }
-                //if (plugins.length > 0 ) {
-                //        usePlugin(plugins[0].mainpage);
-                //}
-                usePlugin("bundles.html");
-                //for (var i = 0; i < plugins.length; i++) {
-                //        content.innerHTML += "<h2>" + plugins[i].title +"</h2>";
-                //        content.innerHTML += "<iframe id=\"content\" src=\"" + plugins[i].mainpage +"\"/>";
-                //}
+                if (plugins.length > 0 ) {
+                        usePlugin(plugins[0].title, plugins[0].mainpage);
+                }
         }
 
         function send_it() {
@@ -79,7 +47,7 @@
                 <div id="menu" name="menu">
                 </div>
                 <h1>Content</h1>
-                <div id="inhoud" name="inhoud">
+                <div id="contents" name="contents">
                 </div>
                 <!--
                 <iframe id="content_frame" src="/bundles.html"/>
