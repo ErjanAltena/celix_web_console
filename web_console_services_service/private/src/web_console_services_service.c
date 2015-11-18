@@ -69,7 +69,7 @@ celix_status_t webConsoleServicesServiceRemoveResources(web_console_pt wc, char 
         return removeWebResources(wc->bundleContext, resources, webRoot);
 }
 
-char *webConsoleServicesServiceGetJsonData(web_console_pt wc) 
+char *webConsoleServicesServiceGetJsonData(web_console_pt wc, char *query) 
 {
         static char jsonBuffer[4096];
         int idx = 0;

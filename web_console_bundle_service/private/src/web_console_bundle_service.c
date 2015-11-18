@@ -35,6 +35,7 @@ struct web_console {
 
 char* resources[] = {
         "bundles.html",
+        "bundles.js",
         NULL
 };
 
@@ -72,40 +73,78 @@ celix_status_t webConsoleBundleServiceRemoveResources(web_console_pt wc, char *w
 char * psCommand_stateString(bundle_state_e state) {
         switch (state) {
                 case OSGI_FRAMEWORK_BUNDLE_ACTIVE:
-                        return "Active      ";
+                        return "Active";
                 case OSGI_FRAMEWORK_BUNDLE_INSTALLED:
-                        return "Installed   ";
+                        return "Installed";
                 case OSGI_FRAMEWORK_BUNDLE_RESOLVED:
-                        return "Resolved    ";
+                        return "Resolved";
                 case OSGI_FRAMEWORK_BUNDLE_STARTING:
-                        return "Starting    ";
+                        return "Starting";
                 case OSGI_FRAMEWORK_BUNDLE_STOPPING:
-                        return "Stopping    ";
+                        return "Stopping";
                 default:
-                        return "Unknown     ";
+                        return "Unknown";
         }
 }
 
+static void start_bundle(bundle_context_pt context, int bundle_id) {
+        bundle_pt bundle = NULL;
+        celix_status_t status;
 
-char *webConsoleBundleServiceGetJsonData(web_console_pt wc) 
-{
+        status = bundleContext_getBundleById(context, bundle_id, &bundle);
+        if (status == CELIX_SUCCESS) {
+                status = bundle_startWithOptions(bundle, 0);
+        }
+        if(status != CELIX_SUCCESS) {
+                printf("start_bundle failed with code %d\n", status);
+        }
+}
+
+static void stop_bundle(bundle_context_pt context, int bundle_id) {
+        bundle_pt bundle = NULL;
+        celix_status_t status;
+
+        status = bundleContext_getBundleById(context, bundle_id, &bundle);
+        if (status == CELIX_SUCCESS) {
+                status = bundle_stopWithOptions(bundle, 0);
+        }
+        if(status != CELIX_SUCCESS) {
+                printf("stop_bundle failed with code %d\n", status);
+        }
+}
+
+char *webConsoleBundleServiceGetJsonData(web_console_pt wc, char *query) {
         array_list_pt bundles = NULL;
         celix_status_t status = bundleContext_getBundles(wc->bundleContext, &bundles);
         unsigned int size = arrayList_size(bundles);
-        static char line[1024]; 
-        static char *archiveRoot; 
+        static char line[1024];
+        static char *archiveRoot;
         int cnt = 0;
         int i;
         bundle_pt bundlesA[size];
-         
+
+        if (query) {
+                int bundle_id;
+                if (sscanf(query, "command=stop&id=%d", &bundle_id) == 1) {
+                        stop_bundle(wc->bundleContext, bundle_id);
+                } else if (sscanf(query, "command=start&id=%d", &bundle_id) == 1) {
+                        start_bundle(wc->bundleContext, bundle_id);
+                } else if (sscanf(query, "command=uninstall&id=%d", &bundle_id) == 1) {
+                        bundle_pt bundle;
+                        bundleContext_getBundleById(wc->bundleContext, bundle_id, &bundle);
+                        bundle_uninstall(bundle);
+                        //                } else if(sscanf(query,"command=install&id=%s", command) == 1) {
+                        //                        //install bundle
+                }
+        }
         for (i = 0; i < size; i++) {
                 bundlesA[i] = arrayList_get(bundles, i);
         }
         if (status == CELIX_SUCCESS) {
                 int j;
                 int first = 1;
-                for(i=0; i < size - 1; i++) {
-                        for(j=i+1; j < size; j++) {
+                for (i = 0; i < size - 1; i++) {
+                        for (j = i + 1; j < size; j++) {
                                 bundle_pt first = bundlesA[i];
                                 bundle_pt second = bundlesA[j];
 
@@ -117,12 +156,11 @@ char *webConsoleBundleServiceGetJsonData(web_console_pt wc)
                                 bundle_getArchive(second, &sarchive);
                                 bundleArchive_getId(sarchive, &sid);
 
-                                if(fid > sid)
-                                {
-                                         // these three lines swap the elements bundles[i] and bundles[j].
-                                         bundle_pt temp = bundlesA[i];
-                                         bundlesA[i] = bundlesA[j];
-                                         bundlesA[j] = temp;
+                                if (fid > sid) {
+                                        // these three lines swap the elements bundles[i] and bundles[j].
+                                        bundle_pt temp = bundlesA[i];
+                                        bundlesA[i] = bundlesA[j];
+                                        bundlesA[j] = temp;
                                 }
                         }
                 }
@@ -145,15 +183,15 @@ char *webConsoleBundleServiceGetJsonData(web_console_pt wc)
                         module_getSymbolicName(module, &name);
                         bundleArchive_getLocation(archive, &loc);
                         bundleArchive_getArchiveRoot(archive, &archiveRoot);
-                        if(first) {
+                        if (first) {
                                 first = 0;
                         } else {
                                 cnt += sprintf(&(line[cnt]), ",\n");
                         }
-                        cnt += sprintf(&(line[cnt]), "{\"id\":\"%d\", \"state\":\"%s\", \"name\":\"%s\", \"loc\":\"%s\", \"archiveroot\":\"%s\" }", (int)id, stateString, name, loc, archiveRoot);
+                        cnt += sprintf(&(line[cnt]), "{\"id\":\"%d\", \"state\":\"%s\", \"name\":\"%s\", \"loc\":\"%s\", \"archiveroot\":\"%s\" }", (int) id, stateString, name, loc, archiveRoot);
                 }
                 cnt += sprintf(&(line[cnt]), "\n]}");
-               
+
                 arrayList_destroy(bundles);
                 return line;
 

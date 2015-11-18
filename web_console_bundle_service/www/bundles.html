@@ -1,6 +1,8 @@
 <html>
         <head>
                 <title>Celix Web Console -Bundle view</title>
+                <script src="jquery.js"></script>
+                <script src="bundles.js"></script>
         </head>
         <style>
                 #bundle_table {
@@ -30,39 +32,6 @@
                         background-color: #3366FF;
                 }
         </style>
-        <script type="text/javascript">
-        function show_bundles(bi) {
-                var bt = document.getElementById("bundle_table");
-                var cont = "<tr><th>Identification</th><th>State</th><th>Name</th><th>Location</th></tr>";
-                for (var i = 0; i < bi.length; i++) {
-                        //content += "<tr><td>" + bi[i].id + "</td><td id=\"" + service + i + "\">" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
-                        cont += "<tr><td>" + bi[i].id + "</td><td>" + bi[i].state + "</td><td>" + bi[i].name + "</td><td>" + bi[i].loc + "</td></tr>";
-                        //somehow connect a function to enable/disable the bundle
-                        //document.getElementById(service + id).addEventListener('onmouseup', function
-                }
-                bt.innerHTML  = cont;       
-        }
-
-        //
-        // Main
-        //
-        var xmlhttp;
-        
-        xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        var bundle_info = JSON.parse(xmlhttp.responseText);
-                        show_bundles(bundle_info.Bundles);
-                }
-        }                
-        
-        function send_it() {
-                xmlhttp.open("GET","/bundle" , true);  
-                xmlhttp.send();
-                setTimeout(send_it, 1000);
-        }      
-        setTimeout(send_it, 1000);
-        </script>
         <body>
                 <table id="bundle_table"/>
         </body>

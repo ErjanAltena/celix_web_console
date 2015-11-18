@@ -23,7 +23,7 @@ struct web_console_service {
         web_console_pt webConsole;
         char *(*getServiceName)(web_console_pt wc); 
         char *(*getWebEntry)(web_console_pt wc); 
-        char *(*getJsonData)(web_console_pt wc);
+        char *(*getJsonData)(web_console_pt wc, char * query);
         char *(*getMainWebPage)(web_console_pt wc);
         celix_status_t (*copyRecourcesToWebDirectory)(web_console_pt handle, char * wwwRoot);
         celix_status_t (*removeRecourcesFromWebDirectory)(web_console_pt handle, char * wwwRoot);

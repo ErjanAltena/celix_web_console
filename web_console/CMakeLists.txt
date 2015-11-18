@@ -30,6 +30,7 @@ if (WEB_CONSOLE)
                 FILES 
                         www/index.html
                         www/celix.png
+                        www/jquery.js
 	)
 	
 	install_bundle(web_console)

@@ -20,5 +20,5 @@ char *webConsoleBundleServiceName(web_console_pt wc);
 char *webConsoleBundleServiceWebEntry(web_console_pt wc); 
 celix_status_t webConsoleBundleServiceCopyResources(web_console_pt wc, char *webRoot); 
 celix_status_t webConsoleBundleServiceRemoveResources(web_console_pt wc, char *webRoot);
-char *webConsoleBundleServiceGetJsonData(web_console_pt wc);
+char *webConsoleBundleServiceGetJsonData(web_console_pt wc, char *query);
 char * webConsoleBundleServiceGetMainWebPage(web_console_pt wc); 

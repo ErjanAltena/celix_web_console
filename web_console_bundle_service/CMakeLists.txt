@@ -28,6 +28,7 @@ if (WEB_CONSOLE_BUNDLE_SERVICE)
                         ../web_console_util/private/src/web_resources.c
                 FILES	
                         www/bundles.html
+                        www/bundles.js
 	)
 	
 	install_bundle(web_console_bundle_service)

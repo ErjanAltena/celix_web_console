@@ -39,6 +39,7 @@
 
 char* resources[] = {"index.html",
                      "celix.png",
+                     "jquery.js",
                       NULL};
 
 typedef struct shellWebActivator * shell_web_activator_pt;
@@ -141,30 +142,40 @@ static int event_handler(struct mg_connection *conn, void * data)
 
 int plugin_event_handler(struct mg_connection *conn, void *data)
 {
-        char jsonbuffer[4096];
-        int offset = 0;
         int i = 0;
+        char *jsondata;
+        char *save;
         shell_web_activator_pt  act = (shell_web_activator_pt) data;
         if(act->running) {
                 int size = arrayList_size(act->trackedServices);
-                offset += sprintf(&(jsonbuffer[offset]), "{\"plugins\":[");
+                asprintf(&jsondata, "{\"plugins\":[");
                 for(i = 0; i < size; i++) {
                         web_console_service_pt webService = (web_console_service_pt) arrayList_get(act->trackedServices, i);
                         char * title = webService->getServiceName(webService->webConsole);
                         char * page  = webService->getMainWebPage(webService->webConsole);
-                        offset += sprintf(&(jsonbuffer[offset]), "{\"title\":\"%s\", \"mainpage\":\"%s\"}", title, page);
+                        save = jsondata;
+                        asprintf(&jsondata, "%s{\"title\":\"%s\", \"mainpage\":\"%s\"}", 
+                                save,
+                                title, 
+                                page);
+                        free(save);
                         if(i != (size - 1)) {
-                                offset += sprintf(&(jsonbuffer[offset]), ",");
+                                save = jsondata;
+                                asprintf(&jsondata, "%s,", save);
+                                free(save);
                         }
                 }
-                offset += sprintf(&(jsonbuffer[offset]), "]}");
+                save = jsondata;
+                asprintf(&jsondata, "%s]}", save);
+                free(save);
                 mg_printf(conn,
                           "HTTP/1.1 200 OK\r\n"
                           "Content-Type: text/plain\r\n"
                           "Content-Length: %d\r\n"        // Always set Content-Length
                           "\r\n"
                           "%s",
-                          offset, jsonbuffer);
+                          strlen(jsondata), jsondata);
+                free(jsondata);
         }
         return 1;
 }
@@ -185,7 +196,7 @@ int cgi_event_handler(struct mg_connection *conn, void * data)
                 const struct mg_request_info *reqInfo = mg_get_request_info(conn);
                 if (!strcmp(entry, reqInfo->uri )) {
                         // Prepare the message we're going to send
-                        content = webService->getJsonData(webService->webConsole);
+                        content = webService->getJsonData(webService->webConsole, (char*)reqInfo->query_string);
             
                         // Send HTTP reply to the client
                         mg_printf(conn,
@@ -195,8 +206,8 @@ int cgi_event_handler(struct mg_connection *conn, void * data)
                                 "\r\n"
                                 "%s",
                                 (int)strlen(content), content);
-                                result = 1; //request is handled, no further actions needed. 
-                                break;
+                        result = 1; //request is handled, no further actions needed. 
+                        break;
                 }  
         } 
     }
