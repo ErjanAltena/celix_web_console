@@ -14,7 +14,7 @@ before_install:
   - mkdir celix && cd celix
   - git clone https://github.com/apache/celix.git .
   - mkdir build && cd build
-  - cmake ..
+  - cmake -DCMAKE_INSTALL_PREFIX=/opt/local ..
   - make && sudo make install-all
   - cd ../..
   - mkdir build
