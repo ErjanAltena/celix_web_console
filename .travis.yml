@@ -11,16 +11,16 @@ compiler:
   - gcc
   
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then apt-get -qq update && apt-get install -y uuid-dev libjansson-dev libxml2-dev lcov libffi-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq update && sudo apt-get install -y uuid-dev libjansson-dev libxml2-dev lcov libffi-dev; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update && brew install lcov libffi && brew link --force libffi; fi
   - mkdir celix && cd celix
   - git clone https://github.com/apache/celix.git .
   - mkdir build && cd build
   - cmake ..
-  - make && make install-all
+  - make && sudo make install-all
   - cd ../..
   - mkdir build
   - cd build
   - cmake ..
-  - make && make deploy
+  - make && make deploy 
   
