@@ -17,6 +17,8 @@ before_install:
   - cmake -DCMAKE_INSTALL_PREFIX=/opt/local ..
   - make && sudo make install-all
   - cd ../..
+
+  script:
   - mkdir build
   - cd build
   - cmake ..
