@@ -4,8 +4,6 @@ os:
     - linux
     - osx
     
-sudo: false
-    
 compiler:
   - clang
   - gcc
